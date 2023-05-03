@@ -1,0 +1,16 @@
+{
+  "component": {
+    "Blackbird.kvs.connector": {
+      "author": "Soren Jakobsen",
+      "version": "1.0.3",
+      "build": {
+        "build_system": "gradlew"
+      },
+      "publish": {
+        "bucket": "greengrass-component-artifacts",
+        "region": "eu-west-1"
+      }
+    }
+  },
+  "gdk_version": "1.0.0"
+}

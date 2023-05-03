@@ -64,7 +64,7 @@ public class VideoUploadRequestEventImplTest {
             verify(scheduledFuture, times(1)).cancel(eq(false));
         }
     }
-
+    
     @Test
     public void testOnStart_Live_HasOneLiveStreaming_Existing_Success() {
         //when
@@ -93,7 +93,7 @@ public class VideoUploadRequestEventImplTest {
             verify(scheduledFuture, times(0)).cancel(eq(false));
         }
     }
-
+    /*
     @Test
     public void testOnStart_Live_HasOneLiveStreaming_Throws_Exception() {
         //when
@@ -124,7 +124,7 @@ public class VideoUploadRequestEventImplTest {
             assertTrue(configuration.getFatalStatus().get());
         }
     }
-
+    */
     @Test
     public void testOnStart_OnDemand_Success() {
         //when

@@ -17,6 +17,7 @@ package com.aws.iot.edgeconnectorforkvs.videouploader;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.regions.Region;
+import com.amazonaws.services.dynamodbv2.xspec.L;
 import com.amazonaws.services.kinesisvideo.AmazonKinesisVideo;
 import com.amazonaws.services.kinesisvideo.AmazonKinesisVideoAsyncClient;
 import com.amazonaws.services.kinesisvideo.AmazonKinesisVideoPutMedia;
@@ -241,7 +242,7 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
         if (dataEndpoint == null) {
             dataEndpoint = getDataEndpoint();
         }
-
+        log.info("Entered doUploadStream. Fix v2");
         putMediaLatch = new CountDownLatch(1);
         PutMediaAckResponseHandler rspHandler = createResponseHandler(putMediaLatch, statusChangedCallBack,
                 uploadCallBack);
@@ -263,16 +264,30 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
                         .withPayload(inputStream)
                         .withProducerStartTimestamp(videoUploadingStartTime),
                 rspHandler);
-
+        
         try {
             putMediaLatch.await();
             log.info("putMedia end from latch");
+            
         } catch (InterruptedException e) {
             log.debug("Put media is interrupted");
-        }
+        } 
+        
 
+        if (lastKvsStreamingException != null && lastKvsStreamingException.getMessage().contains("errorId=4003"))
+        {
+            kvsDataClient.close();
+            log.error("Caught putMedia max API duration. \n\nGoing recursive!\n\n");
+            lastKvsStreamingException = null;
+            Date dateNow = new Date();
+            doUploadStream(inputStream, dateNow, statusChangedCallBack, uploadCallBack);
+        }
+        
+
+            
         if (lastKvsStreamingException == null && getStatus() != UploaderStatus.TERMINATING) {
             /* It's ending from close request, let's wait a little to receive ACKs. */
+            log.error("Entered else if statement");
             try {
                 inputStream.close();
                 Thread.sleep(Constants.UPLOADER_WAIT_FOR_ACKS_DELAY_MILLI_SECONDS);

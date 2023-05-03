@@ -1,0 +1,6 @@
+{ 
+  "Blackbird.kvs.connector": { 
+    "MERGE": {"SiteWiseAssetIdForHub": "f10d9471-7115-4afb-a8e8-7b652b64edd9"}, 
+    "RESET": [""] 
+  } 
+}
