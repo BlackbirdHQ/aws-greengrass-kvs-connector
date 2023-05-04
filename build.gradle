@@ -129,7 +129,8 @@ shadowJar {
     archiveClassifier.set('super')
     archiveVersion.set('1.0')
 
-    destinationDirectory.fileValue(file('output'))
+    // This was originally set as 'output', causing artifact copying to fail
+    destinationDirectory.fileValue(file('build/libs'))
     zip64 true
 
     // exclude licenses from dependencies

@@ -1,9 +1,9 @@
 ---
 RecipeFormatVersion: '2020-01-25'
-ComponentName: Blackbird.kvs.connector
-ComponentVersion: 1.0.3
+ComponentName: "{COMPONENT_NAME}"
+ComponentVersion: "{COMPONENT_VERSION}"
 ComponentDescription: Greengrass component for KVS
-ComponentPublisher: Blackbird
+ComponentPublisher: "{COMPONENT_AUTHOR}"
 ComponentConfiguration:
   DefaultConfiguration:
     accessControl:
@@ -26,7 +26,8 @@ Manifests:
   - Platform:
       os: all
     Artifacts:
-      - URI: "s3://greengrass-component-artifacts/Blackbird.kvs.connector/1.0.3/EdgeConnectorForKVS-1.0-super.jar"
+      - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/EdgeConnectorForKVS-1.0-super.jar"
+        Unarchive: NONE
     Lifecycle:
       Run:
-        Script: java -jar {artifacts:Path}/Blackbird.kvs.connector/EdgeConnectorForKVS-1.0-super.jar '{configuration:/SiteWiseAssetIdForHub}'
+        Script: java -jar {artifacts:path}/EdgeConnectorForKVS-1.0-super.jar '{configuration:/SiteWiseAssetIdForHub}'
