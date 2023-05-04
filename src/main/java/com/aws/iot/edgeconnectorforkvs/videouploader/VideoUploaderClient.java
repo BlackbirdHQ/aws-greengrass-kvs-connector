@@ -228,9 +228,10 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
 
         mkvStats = mkvInputStream;
         Monitor.getMonitor().add(getUploadLiveVideoSubject(), this, MKV_STATS_PERIODICAL_CHECK_TIME, this);
-
+        log.info("Entered uploadStream, set up stream in monitor");
         doUploadStream(mkvInputStream, videoUploadingStartTime, statusChangedCallBack, uploadCallBack);
-
+        
+        log.info("Left uploadStream, removing stream from monitor");
         Monitor.getMonitor().remove(getUploadLiveVideoSubject());
         mkvStats = null;
 
@@ -276,7 +277,8 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
 
         if (lastKvsStreamingException != null && lastKvsStreamingException.getMessage().contains("errorId=4003"))
         {
-            kvsDataClient.close();
+            //kvsDataClient.close(); // Remove this one monday. "Read end dead"
+            kvsDataClient = null;
             log.error("Caught putMedia max API duration. \n\nGoing recursive!\n\n");
             lastKvsStreamingException = null;
             Date dateNow = new Date();

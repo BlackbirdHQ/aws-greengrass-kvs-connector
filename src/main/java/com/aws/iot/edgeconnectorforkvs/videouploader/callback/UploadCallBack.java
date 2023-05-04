@@ -65,10 +65,12 @@ public class UploadCallBack {
      */
     public UploadCallBack(Date date,
                           EdgeConnectorForKVSConfiguration edgeConnectorForKVSConfiguration) {
+        
         this.dateBegin = new Date(date.getTime());
         this.edgeConnectorForKVSConfiguration = edgeConnectorForKVSConfiguration;
         this.executorService = Executors.newSingleThreadExecutor();
         this.videoUploadedTimeDate = new Date(date.getTime());
+        log.info("UploadCallBack was called and ended.");
     }
 
     /**
