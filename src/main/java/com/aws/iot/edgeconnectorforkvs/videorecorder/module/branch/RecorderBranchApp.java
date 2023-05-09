@@ -150,7 +150,7 @@ public class RecorderBranchApp extends RecorderBranchBase {
         boolean isEos = false;
         int waitTimeInMs = 0;
 
-        log.info("AppBranch is waiting for EOS.");
+        log.debug("AppBranch is waiting for EOS.");
         while (!isEos && waitTimeInMs < RecorderBranchApp.UNBIND_TIMEOUT_MS) {
             isEos = (boolean) this.gstCore.getElementProp(this.appSink, "eos");
             try {
@@ -163,7 +163,7 @@ public class RecorderBranchApp extends RecorderBranchBase {
         }
 
         if (isEos) {
-            log.info("AppBranch receives EOS.");
+            log.debug("AppBranch receives EOS.");
         } else {
             log.warn("AppBranch doesn't receive EOS.");
         }
@@ -174,15 +174,15 @@ public class RecorderBranchApp extends RecorderBranchBase {
         this.appNotifyMtx.lock();
         try {
             this.setNotificationOn(false);
-            log.info("AppBranch stops muxer");
+            log.debug("AppBranch stops muxer");
             this.gstCore.stopElement(this.muxer);
-            log.info("AppBranch stops appsink");
+            log.debug("AppBranch stops appsink");
             this.gstCore.stopElement(this.appSink);
-            log.info("AppBranch unlink muxer and appsink");
+            log.debug("AppBranch unlink muxer and appsink");
             this.gstCore.unlinkElements(this.muxer, this.appSink);
-            log.info("AppBranch removes pipeline");
+            log.debug("AppBranch removes pipeline");
             this.gstCore.removePipelineElements(this.pipeline, this.muxer, this.appSink);
-            log.info("AppBranch sets null");
+            log.debug("AppBranch sets null");
             this.muxer = null;
             this.appSink = null;
         } finally {
@@ -192,25 +192,25 @@ public class RecorderBranchApp extends RecorderBranchBase {
 
     @Override
     protected synchronized Pad getEntryAudioPad() {
-        log.debug("New AppBranch audio entry pad.");
+        log.debug("New AppBranch audio entry pad."); // Real debug
         return this.gstCore.getElementRequestPad(this.muxer, "audio_%u");
     }
 
     @Override
     protected synchronized Pad getEntryVideoPad() {
-        log.debug("New AppBranch video entry pad.");
+        log.debug("New AppBranch video entry pad."); // Real debug
         return this.gstCore.getElementRequestPad(this.muxer, "video_%u");
     }
 
     @Override
     protected synchronized void relEntryAudioPad(Pad pad) {
-        log.debug("Rel AppBranch audio entry pad.");
+        log.debug("Rel AppBranch audio entry pad."); // Real debug
         this.gstCore.relElementRequestPad(this.muxer, pad);
     }
 
     @Override
     protected synchronized void relEntryVideoPad(Pad pad) {
-        log.debug("Rel AppBranch video entry pad.");
+        log.debug("Rel AppBranch video entry pad."); // Real debug
         this.gstCore.relElementRequestPad(this.muxer, pad);
     }
 }

@@ -145,7 +145,7 @@ public abstract class RecorderBranchBase {
 
             // Unlink tee and queue when teeSrcPad is idle
             if (this.gstCore.unlinkPad(teeSrcPad, quePadSink)) {
-                log.info("Tee and queue unlinked.");
+                log.debug("Tee and queue unlinked.");
             } else {
                 log.error("Tee and queue unlink failed.");
             }
@@ -154,9 +154,9 @@ public abstract class RecorderBranchBase {
             this.gstCore.sendPadEvent(quePadSink, this.gstCore.newEosEvent());
 
             // Remove tee src pad
-            log.info("Tee pad is releasing.");
+            log.debug("Tee pad is releasing.");
             this.gstCore.relElementRequestPad(this.teeSrcPad2Tee.get(teeSrcPad), teeSrcPad);
-            log.info("Tee pad is removed.");
+            log.debug("Tee pad is removed.");
             this.teeSrcPad2Tee.remove(teeSrcPad);
 
             this.deattachCnt.countDown();
@@ -224,14 +224,14 @@ public abstract class RecorderBranchBase {
 
         try {
             this.gstCore.linkPad(recorderSrcPad, quePadSink);
-            log.info("Recorder tee and branch queue linked.");
+            log.debug("Recorder tee and branch queue linked.");
         } catch (PadLinkException e) {
             log.error("Recorder tee and branch queue link failed.");
         }
 
         try {
             this.gstCore.linkPad(quePadSrc, entryPadSink);
-            log.info("Branch queue and branch entry linked.");
+            log.debug("Branch queue and branch entry linked.");
         } catch (PadLinkException e) {
             log.error("Branch queue and branch entry link failed.");
         }
@@ -254,7 +254,7 @@ public abstract class RecorderBranchBase {
         this.bindLock.lock();
         try {
             if (!this.isBranchAttached()) {
-                log.info("Branch binds to recorder.");
+                log.debug("Branch binds to recorder.");
 
                 this.onBindBegin();
 
@@ -290,24 +290,24 @@ public abstract class RecorderBranchBase {
 
         // Unlink elements
         if (this.gstCore.unlinkPad(quePadSrc, entryPadSink)) {
-            log.info("Branch queue and branch entry unlinked.");
+            log.debug("Branch queue and branch entry unlinked.");
         } else {
             log.error("Branch queue and branch entry unlink failed");
         }
 
-        log.info("branch queue is stopping.");
+        log.debug("branch queue is stopping.");
         this.gstCore.stopElement(queElement);
-        log.info("branch queue is removed.");
+        log.debug("branch queue is removed.");
         this.gstCore.removePipelineElements(this.pipeline, queElement);
 
-        log.info("branch entry pad is releasing.");
+        log.debug("branch entry pad is releasing.");
         if (cap == RecorderCapability.AUDIO_ONLY) {
             relEntryAudioPad(entryPadSink);
         } else {
             relEntryVideoPad(entryPadSink);
         }
 
-        log.info("branch entry pad is removed.");
+        log.debug("branch entry pad is removed.");
         this.entryPadSet.remove(entryPadSink);
     }
 
@@ -328,10 +328,10 @@ public abstract class RecorderBranchBase {
                     this.gstCore.addPadProbe(teePadSrc, PadProbeType.IDLE, this.teeBlockProbe);
                 }
 
-                log.info("Waiting for queues detaching");
+                log.debug("Waiting for queues detaching");
                 try {
                     this.deattachCnt.await();
-                    log.info("All queues are detached.");
+                    log.debug("All queues are detached.");
                 } catch (InterruptedException e) {
                     log.error("deattachCnt InterruptedException: {}", e.getMessage());
                 }

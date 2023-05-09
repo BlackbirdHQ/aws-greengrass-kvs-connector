@@ -103,6 +103,8 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
     /* MKV stats provided by either MkvInputStream or MkvFilesInputStream. */
     private MkvStats mkvStats = null;
 
+    boolean wetimedout; 
+
     /* MKV statistics comes from either MkvInputStream or MkvFilesInputStream. */
     private MkvStatistics mkvStatistics = MkvStatistics.builder().build();
 
@@ -230,7 +232,7 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
         Monitor.getMonitor().add(getUploadLiveVideoSubject(), this, MKV_STATS_PERIODICAL_CHECK_TIME, this);
         log.info("Entered uploadStream, set up stream in monitor");
         doUploadStream(mkvInputStream, videoUploadingStartTime, statusChangedCallBack, uploadCallBack);
-        
+            
         log.info("Left uploadStream, removing stream from monitor");
         Monitor.getMonitor().remove(getUploadLiveVideoSubject());
         mkvStats = null;
@@ -239,16 +241,17 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
     }
 
     private void doUploadStream(InputStream inputStream, Date videoUploadingStartTime, Runnable statusChangedCallBack,
-                                UploadCallBack uploadCallBack) throws KvsStreamingException {
+                                UploadCallBack uploadCallBack) throws KvsStreamingException {       
         if (dataEndpoint == null) {
             dataEndpoint = getDataEndpoint();
         }
-        log.info("Entered doUploadStream. Fix v2");
+        log.info("Entered doUploadStream. Fix v6");
         putMediaLatch = new CountDownLatch(1);
         PutMediaAckResponseHandler rspHandler = createResponseHandler(putMediaLatch, statusChangedCallBack,
                 uploadCallBack);
 
         if (kvsDataClient == null) {
+            log.info("kvsDataClient was null. Creating new!");
             kvsDataClient = AmazonKinesisVideoPutMediaClient.builder()
                     .withRegion(region.getName())
                     .withEndpoint(URI.create(dataEndpoint))
@@ -256,6 +259,9 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
                     .withConnectionTimeoutInMillis(CONNECTION_TIMEOUT_IN_MILLIS)
                     .withNumberOfThreads(1)
                     .build();
+        }
+        else {
+            log.info("kvsDataClient wasn't null ! Using the old");
         }
 
         log.info("Uploading from input stream, timestamp: " + videoUploadingStartTime.getTime());
@@ -267,22 +273,25 @@ public class VideoUploaderClient implements VideoUploader, CheckCallback {
                 rspHandler);
         
         try {
-            putMediaLatch.await();
+            wetimedout = putMediaLatch.await(2,TimeUnit.MINUTES);
             log.info("putMedia end from latch");
             
-        } catch (InterruptedException e) {
-            log.debug("Put media is interrupted");
+        } catch (Exception e) {
+            log.info("doUploadStream.. Exception: " + e.getMessage());
+            
         } 
-        
+        if(wetimedout)
+        {
+            log.info("wetimedout is true");
+        }
+        else { log.info("wetimedout is false");}
 
         if (lastKvsStreamingException != null && lastKvsStreamingException.getMessage().contains("errorId=4003"))
         {
-            //kvsDataClient.close(); // Remove this one monday. "Read end dead"
-            kvsDataClient = null;
+            
             log.error("Caught putMedia max API duration. \n\nGoing recursive!\n\n");
             lastKvsStreamingException = null;
-            Date dateNow = new Date();
-            doUploadStream(inputStream, dateNow, statusChangedCallBack, uploadCallBack);
+            doUploadStream(inputStream, videoUploadingStartTime, statusChangedCallBack, uploadCallBack);
         }
         
 

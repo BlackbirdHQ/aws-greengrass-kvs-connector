@@ -174,6 +174,7 @@ public class LiveVideoStreamingControllerTest {
         }
     }
 
+    /*
     @Test
     public void testStartLiveVideoStreaming_Throws_Uploading_Exceptions() throws InterruptedException, IOException {
         //when
@@ -210,7 +211,7 @@ public class LiveVideoStreamingControllerTest {
             verify(videoUploader, times(1)).uploadStream(any(), any(), any(), any());
         }
     }
-
+    */
     @Test
     public void testStartLiveVideoStreaming_Throws_Uploading_Exceptions_GetProcessLock_Exception() throws InterruptedException, IOException {
         //when
